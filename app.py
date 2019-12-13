@@ -26,7 +26,6 @@ def route_api_sites():
 
 @app.route('/api/site/findby/address/<address>')
 def route_site_findbyip(address):
-    result = ''
     sites = AbbSites()
     result = sites.find(by_address=address)
     return jsonify(result), 200
@@ -34,7 +33,6 @@ def route_site_findbyip(address):
 
 @app.route('/api/site/findby/abbname/<abbname>')
 def route_site_findbyabbname(abbname):
-    result = ''
     sites = AbbSites()
     result = sites.find(by_abbname=abbname)
     return jsonify(result), 200
@@ -42,7 +40,6 @@ def route_site_findbyabbname(abbname):
 
 @app.route('/api/site/findby/sortname/<name>')
 def route_site_findbyname(name):
-    result = ''
     sites = AbbSites()
     result = sites.find(by_sortname=name)
     return jsonify(result), 200
