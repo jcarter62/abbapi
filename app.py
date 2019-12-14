@@ -1,11 +1,13 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from abbsites import AbbSites
+from applogging import AppLogging
 
 app = Flask(__name__)
-
+log = AppLogging(appname='api', app=app)
 
 @app.route('/')
 def home():
+    log.log_message(msg='/', req=request )
     return jsonify({})
 
 
