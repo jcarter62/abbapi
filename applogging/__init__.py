@@ -32,7 +32,10 @@ class LogFile:
         else:
             self.appname = appname
 
+        # print(self.appname)
+        # print(self.get_time_stamp_string())
         self.filename = self.appname + '-' + self.get_time_stamp_string() + '.txt'
+        # print(self.filename)
         log_dir = LogDir(appname).log_folder
         self.full_path = os.path.join(log_dir, self.filename)
         return
@@ -48,25 +51,49 @@ class AppLogging:
         self.logger.setLevel(logging.DEBUG)
         self.log_file_handler = logging.FileHandler(filename=self.logfile.full_path)
         self.logger.addHandler(self.log_file_handler)
+        if os.getenv('FLASK_DEBUG') == 1:
+            self.log2console = True
+        else:
+            self.log2console = False
 
     def log_message(self, msg='', req=None):
         now_string = arrow.now().format("YYYY/MM/DD-HH:mm:ss")
         obj = {
             'stamp': now_string,
-            'url': req.path,
-            'ip': req.remote_addr,
-            'agent': req.user_agent,
+            'url': 'X',
+            'ip': 'X',
+            'agent': 'X',
+            'message': msg
         }
 
-        new_file = LogFile(appname=self.app).full_path
-        current_file = self.app.logger.handlers[0].baseFilename
-        if current_file != new_file:
-            handler = self.app.logger.handlers[0]
-            self.app.logger.removeHandler(hdlr=handler)
-            handler = logging.FileHandler(filename=new_file)
-            self.app.logger.addHandler(handler)
+        if req != None:
+            obj['url'] = req.path
+            obj['ip'] = req.remote_addr
+            obj['agent'] = req.user_agent
 
-        self.logger.info('%(ip)s %(stamp)s %(url)s %(agent)s' % obj)
+
+        current_file = None
+        try:
+            new_file = LogFile(appname=self.appname).full_path
+            current_file = self.app.logger.handlers[0].baseFilename
+        except Exception as e:
+            print('Exception %s' % str(e))
+
+        try:
+            if current_file != new_file:
+                if self.app.logger.handlers.__len__() > 0:
+                    handler = self.app.logger.handlers[0]
+                    self.app.logger.removeHandler(hdlr=handler)
+
+                handler = logging.FileHandler(filename=new_file)
+                self.app.logger.addHandler(handler)
+        except Exception as e:
+            print('Exception %s' % str(e))
+
+        fmt = '%(ip)s %(stamp)s %(url)s %(agent)s: %(message)s'
+        self.logger.info(fmt % obj)
+        if self.log2console:
+            print(fmt % obj)
 
         return
 

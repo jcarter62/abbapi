@@ -3,7 +3,7 @@ import json
 from typing import List, Any
 
 
-class AbbSites:
+class Sites:
     names: List[Any]
     sites: object
 
@@ -26,7 +26,7 @@ class AbbSites:
         :param by_sortname:
         :return: object
         '''
-        result = {}
+        result = None
         if by_address != None:
             url = 'http://' + by_address
             for s in self.sites['sites']:
