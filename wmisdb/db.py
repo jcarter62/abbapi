@@ -1,6 +1,5 @@
 import pyodbc
-
-from settings import Settings
+from appsettings import Settings
 
 
 class DB:
@@ -10,8 +9,8 @@ class DB:
         super().__init__()
 
     def _conn_str_(self, ):
-        server = self.settings.server
-        database = self.settings.db
+        server = self.settings.sqlserver
+        database = self.settings.sqldb
         driver = 'DRIVER={ODBC Driver 17 for SQL Server}'
         return driver + ';SERVER=' + server + ';DATABASE=' + database + ';Trusted_Connection=yes;'
 

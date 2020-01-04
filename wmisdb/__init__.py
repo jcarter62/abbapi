@@ -1,2 +1,2 @@
-
+from .db import DB
 

@@ -1,4 +1,5 @@
 from abb import Sites, AllSitesMRR
+from wmisdb import DB
 import json
 
 class UIHome:
@@ -23,6 +24,9 @@ class UIHome:
         result = []
         sites = Sites().sites['sites']
         mrr = AllSitesMRR().data
+        db = DB()
+        orders = db.orders_summary()
+
         for s in sites:
             name = s['name']
             disp_name = name
@@ -45,7 +49,8 @@ class UIHome:
                 flow = m['tflow']
                 state = m['state']
                 timestamp = m['local']
-                url = './site/' + s['abb']['urlname']
+                # url = './site/' + s['abb']['urlname']
+                url = './site/' + s['name']
                 if s['hmi']['urlname'] > '':
                     url_hmi = s['hmi']['url']
                     disp_name = s['hmi']['urlname']
@@ -53,10 +58,19 @@ class UIHome:
                     url_abb = s['abb']['url']
                     disp_name = s['abb']['urlname']
 
+
+            # find any orders for this lateral/site.
+            site_orders = 0.0
+            for o in orders:
+                if o['latname'].upper() == disp_name.upper():
+                    site_orders = o['flow']
+
             record = {
                 'name': name,
                 'dispname': disp_name,
                 'flow': flow,
+                'flowfmt': '',
+                'orders': site_orders,
                 'state': state,
                 'time': timestamp,
                 'url': url,
@@ -65,6 +79,11 @@ class UIHome:
                 'disp_abb': (s['abb']['urlname'] > ''),
                 'disp_hmi': (s['hmi']['urlname'] > ''),
             }
+
+            if not record['disp_abb']:
+                record['flowfmt'] = '-.-'
+            else:
+                record['flowfmt'] = ('%10.2f' % record['flow']).lstrip(' ')  # + 'cfs'
 
             result.append(record)
 
