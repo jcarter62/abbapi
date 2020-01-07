@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from abb import Sites, SiteMRR, AllSitesMRR
 from applogging import AppLogging
-from uiapi import UIHome
+from uiapi import UIHome, UISite
 
 
 app = Flask(__name__)
@@ -18,6 +18,13 @@ def route_api_uihome():
     uihome = UIHome()
     result = {'totalflow': uihome.total_flow, 'mrrflow': uihome.mrr_flow, 'sites': uihome.data}
     return jsonify(result), 200
+
+
+@app.route('/api/uisite/<site>')
+def route_api_uisite(site):
+    uisite = UISite(sitename=site)
+    data = uisite.data
+    return jsonify(data), 200
 
 
 @app.route('/api/sites/names')

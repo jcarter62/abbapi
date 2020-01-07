@@ -1,6 +1,8 @@
 from abb import Sites, AllSitesMRR
 from wmisdb import DB
 import json
+import arrow
+
 
 class UIHome:
     '''
@@ -37,6 +39,7 @@ class UIHome:
             url = ''
             url_abb = ''
             url_hmi = ''
+            site_age = 'age0'
             if m is None:
                 flow = 0.00
                 state = ''
@@ -57,6 +60,7 @@ class UIHome:
                 if s['abb']['urlname'] > '':
                     url_abb = s['abb']['url']
                     disp_name = s['abb']['urlname']
+                site_age = self.calc_age(m)
 
 
             # find any orders for this lateral/site.
@@ -78,12 +82,27 @@ class UIHome:
                 'url_hmi': url_hmi,
                 'disp_abb': (s['abb']['urlname'] > ''),
                 'disp_hmi': (s['hmi']['urlname'] > ''),
+                'age': site_age,
+                'orders_vs_flow': ''
             }
 
             if not record['disp_abb']:
                 record['flowfmt'] = '-.-'
             else:
                 record['flowfmt'] = ('%10.2f' % record['flow']).lstrip(' ')  # + 'cfs'
+
+            ovf = ''
+            if record['flowfmt'] != '-.-':
+                flowval = float(record['flowfmt'])
+                orders_val = float(record['orders'])
+                if flow <= 0.01:
+                    ovf = ''
+                elif flowval <= (orders_val + 0.1):
+                    ovf = 'good'
+                elif flowval > orders_val:
+                    ovf = 'error'
+
+            record['orders_vs_flow'] = ovf
 
             result.append(record)
 
@@ -94,6 +113,27 @@ class UIHome:
         self.mrr_flow = 0.0
         for m in mrr:
             self.mrr_flow += m['tflow']
+
+        return result
+
+
+    def calc_age(self, record) -> str:
+        if record is None:
+            result = ''
+        else:
+            current_time = arrow.utcnow().timestamp
+            age = current_time - record['t0']
+            if age < 120:
+                result = '0'
+            elif age < 240:
+                result = '1'
+            elif age < 360:
+                result = '2'
+            elif age < 480:
+                result = '3'
+            else:
+                result = '4'
+            result = 'age' + result
 
         return result
 
