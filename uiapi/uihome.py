@@ -95,11 +95,10 @@ class UIHome:
             if record['flowfmt'] != '-.-':
                 flowval = float(record['flowfmt'])
                 orders_val = float(record['orders'])
-                if flow <= 0.01:
-                    ovf = ''
-                elif flowval <= (orders_val + 0.1):
+                of_diff = flowval - orders_val
+                if of_diff < 1.0:
                     ovf = 'good'
-                elif flowval > orders_val:
+                else:
                     ovf = 'error'
 
             record['orders_vs_flow'] = ovf
@@ -109,6 +108,10 @@ class UIHome:
         self.total_flow = 0.0
         for r in result:
             self.total_flow += r['flow']
+
+        # reformat total_flow, showing only 0.XX instead of 0.XXXXXXX
+        #
+        self.total_flow = round(self.total_flow, 2)
 
         self.mrr_flow = 0.0
         for m in mrr:

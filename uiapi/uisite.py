@@ -40,7 +40,6 @@ class UISite:
 
         self.data['combined'] = comb
 
-        # TODO: implement retreival of water orders
         #
         orders = Orders()
         orders_detail = orders.order_detail(self.sitename)

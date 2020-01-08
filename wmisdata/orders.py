@@ -28,11 +28,18 @@ class Orders:
 
         return result
 
+    def del1stchar(self, s):
+        result = s
+        while result[0] == '0':
+            result = result[1:]
+        return result
+
     def order_summary(self, lateral):
         result = []
         conn = pyodbc.connect(self._conn_str_())
         cursor = conn.cursor()
-        cmd = 'exec sp_abb_orders_detail @lateral=\'%s\', @summary=1;' % lateral
+        lat = self.del1stchar(lateral)
+        cmd = 'exec sp_abb_orders_detail @lateral=\'%s\', @summary=1;' % lat
 
         try:
             for row in cursor.execute(cmd):
@@ -46,7 +53,8 @@ class Orders:
         result = []
         conn = pyodbc.connect(self._conn_str_())
         cursor = conn.cursor()
-        cmd = 'exec sp_abb_orders_detail @lateral=\'%s\' ;' % lateral
+        lat = self.del1stchar(lateral)
+        cmd = 'exec sp_abb_orders_detail @lateral=\'%s\' ;' % lat
         total_row = None
         last_row = None
         total_flow = 0.0
