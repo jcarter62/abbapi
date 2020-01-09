@@ -33,6 +33,8 @@ class Setup:
         settings.mongo_port = self.user_input(msg='Please provide Mongo DB Port', def_val=settings.mongo_port)
         settings.sqlserver = self.user_input(msg='SQL Server Name', def_val=settings.sqlserver)
         settings.sqldb = self.user_input(msg='SQL Server Database', def_val=settings.sqldb)
+        settings.datafile = self.user_input(msg='Sites datafile', def_val=settings.datafile)
+        settings.key = self.user_input(msg='key', def_val=settings.key)
 
         if self.user_input(msg='Update config file ? ', def_val='yes') == 'yes':
             settings.save_config()

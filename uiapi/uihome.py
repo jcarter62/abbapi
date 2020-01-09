@@ -20,7 +20,6 @@ class UIHome:
         self.mrr_flow = 0.0
         self.data = self.get_data()
 
-
     def get_data(self):
 
         result = []
@@ -62,12 +61,15 @@ class UIHome:
                     disp_name = s['abb']['urlname']
                 site_age = self.calc_age(m)
 
-
             # find any orders for this lateral/site.
             site_orders = 0.0
             for o in orders:
                 if o['latname'].upper() == disp_name.upper():
-                    site_orders = o['flow']
+                    if isinstance(o['flow'], type('str')):
+                        flo = round(float(o['flow']), 2)
+                    else:
+                        flo = round(o['flow'], 2)
+                    site_orders = flo
 
             record = {
                 'name': name,
@@ -118,7 +120,6 @@ class UIHome:
             self.mrr_flow += m['tflow']
 
         return result
-
 
     def calc_age(self, record) -> str:
         if record is None:

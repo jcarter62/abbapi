@@ -1,6 +1,7 @@
 import os
 import json
 from typing import List, Any
+from appsettings import Settings
 
 
 class Sites:
@@ -8,7 +9,8 @@ class Sites:
     sites: object
 
     def __init__(self):
-        filename = os.getenv('DATAFILE')
+        settings = Settings()
+        filename = settings.datafile  # os.getenv('DATAFILE')
         with open(filename, 'r') as f:
             self.sites = json.load(f)
 

@@ -1,3 +1,6 @@
+from .app_defaults import Defaults
+
+
 class Settings:
 
     def __init__(self, appname='abbapi'):
@@ -6,6 +9,8 @@ class Settings:
         self.mongo_port = 0
         self.sqlserver = ''
         self.sqldb = ''
+        self.datafile = ''
+        self.key = ''
         self.load_config()
 
     def __str__(self):
@@ -14,6 +19,8 @@ class Settings:
             'mongo_port:' + str(self.mongo_port) + nl + \
             'sqlserver:' + self.sqlserver + nl + \
             'sqldb:' + self.sqldb + nl + \
+            'datafile:' + self.datafile + nl + \
+            'key:' + self.key + nl + \
             'config file:' + self.config_filename()
         return s
 
@@ -33,23 +40,52 @@ class Settings:
 
     def load_config(self):
         import json
+        defaults = Defaults()
+
         filename = self.config_filename()
         try:
             with open(filename, 'r') as f:
                 db_obj = json.load(f)
-        except Exception as e:
+        except OSError as e:
             # Assume, we do not have a file, create a default object.
             db_obj = {
-                "mongo_host": "localhost",
-                "mongo_port": 27017,
-                "sqlserver": "sql-svr\\mssqlr2",
-                "sqldb": "wmis_ibm"
+                "mongo_host": defaults.mongo_host,
+                "mongo_port": defaults.mongo_port,
+                "sqlserver": defaults.sqlserver,
+                "sqldb": defaults.sqldb,
+                "datafile": defaults.datafile
             }
 
-        self.mongo_host = db_obj['mongo_host']
-        self.mongo_port = db_obj['mongo_port']
-        self.sqlserver = db_obj['sqlserver']
-        self.sqldb = db_obj['sqldb']
+        try:
+            self.mongo_host = db_obj['mongo_host']
+        except KeyError:
+            self.mongo_host = defaults.mongo_host
+
+        try:
+            self.mongo_port = db_obj['mongo_port']
+        except KeyError:
+            self.mongo_port = defaults.mongo_port
+
+        try:
+            self.sqlserver = db_obj['sqlserver']
+        except KeyError:
+            self.sqlserver = defaults.sqlserver
+
+        try:
+            self.sqldb = db_obj['sqldb']
+        except KeyError:
+            self.sqldb = defaults.sqldb
+
+        try:
+            self.datafile = db_obj['datafile']
+        except KeyError:
+            self.datafile = defaults.datafile
+
+        try:
+            self.key = db_obj['key']
+        except KeyError:
+            self.key = defaults.key
+
         return
 
     def save_config(self):
@@ -58,7 +94,9 @@ class Settings:
             "mongo_host": self.mongo_host ,
             "mongo_port": self.mongo_port,
             "sqlserver": self.sqlserver,
-            "sqldb": self.sqldb
+            "sqldb": self.sqldb,
+            "datafile": self.datafile,
+            "key": self.key
         }
 
         filename = self.config_filename()

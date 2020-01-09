@@ -2,10 +2,12 @@ from flask import Flask, jsonify, request
 from abb import Sites, SiteMRR, AllSitesMRR
 from applogging import AppLogging
 from uiapi import UIHome, UISite
+from appsettings import Settings
 
 
 app = Flask(__name__)
 log = AppLogging(appname='api', app=app)
+
 
 @app.route('/')
 def home():
@@ -13,18 +15,24 @@ def home():
     return jsonify({})
 
 
-@app.route('/api/uihome')
+@app.route('/api/uihome', methods=['POST'])
 def route_api_uihome():
-    uihome = UIHome()
-    result = {'totalflow': uihome.total_flow, 'mrrflow': uihome.mrr_flow, 'sites': uihome.data}
-    return jsonify(result), 200
+    if check_key(request):
+        uihome = UIHome()
+        result = {'totalflow': uihome.total_flow, 'mrrflow': uihome.mrr_flow, 'sites': uihome.data}
+        return jsonify(result), 200
+    else:
+        return jsonify({}), 401
 
 
-@app.route('/api/uisite/<site>')
+@app.route('/api/uisite/<site>', methods=['POST'])
 def route_api_uisite(site):
-    uisite = UISite(sitename=site)
-    data = uisite.data
-    return jsonify(data), 200
+    if check_key(request):
+        uisite = UISite(sitename=site)
+        data = uisite.data
+        return jsonify(data), 200
+    else:
+        return jsonify({}), 401
 
 
 @app.route('/api/sites/names')
@@ -36,13 +44,25 @@ def route_api_sites_names():
     return jsonify(result), 200
 
 
-@app.route('/api/sites')
+@app.route('/api/sites', methods=['POST'])
 def route_api_sites():
     log.log_message(req=request)
     sites = Sites()
     result = {'sites': sites.sites['sites']}
     return jsonify(result), 200
 
+def check_key(req : request):
+    r = req
+    result = False
+    try:
+        key = r.form['key']
+        if key == Settings().key:
+            result = True
+    except KeyError:
+        # key not found, so we did not pass
+        result = False
+
+    return result
 
 @app.route('/api/site/findby/address/<address>')
 def route_site_findbyip(address):
@@ -89,7 +109,7 @@ def route_mrr_site(site):
     return jsonify(result), result_code
 
 
-@app.route('/mrr')
+@app.route('/mrr', methods=['POST'])
 def route_mrr():
     log.log_message(req=request)
     mrr = AllSitesMRR()
