@@ -1,9 +1,10 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, session
 import requests, json
 from abb import Sites, SiteMRR, AllSitesMRR
 from applogging import AppLogging
 from uiapi import UIHome, UISite
 from appsettings import Settings
+from auth import Login, UserInfo
 
 
 app = Flask(__name__)
@@ -18,33 +19,63 @@ def home():
 
 @app.route('/login', methods=['POST'])
 def route_login():
-    result = {'result': 'failure', 'message': ''}
-    if check_key(request):
+    result = {'result': 'failure', 'message': '', 'token': ''}
+    code = 400
+    try:
+        key = request.form['key']
         username = request.form['username']
         password = request.form['password']
-        settings = Settings()
-        url = settings.auth_api + '/login'
-        formdata = {'username': username, 'password': password}
-        try:
-            data = requests.post(url, data=formdata)
-            if data.status_code == 200:
-                data = data.json()
-                token = data['token']
-                result['token'] = token
-                result['result'] = 'success'
-        except requests.exceptions.RequestException as e:
-            result['message'] = e.__str__()
-    return result
+        login = Login(username=username, password=password, key=key)
+        if login.result == 'success':
+            result['result'] = 'success'
+            result['message'] = ''
+            result['token'] = login.token
+            code = 200  # OK
+        else:
+            code = 401  # Unauthorized
+    except Exception as e:
+        result['messsage'] = e.__str__()
+        code = 500  # Internal Server Error
+
+    return jsonify(result), code
+
+
+@app.route('/token_details', methods=['POST'])
+def route_login_details():
+    result = {'email': '', 'name': '', 'username': '', 'message': ''}
+    code = 400
+    try:
+        if check_key(request):
+            token = request.form['token']
+            user_info = UserInfo(token=token)
+            result['email'] = user_info.email
+            result['name'] = user_info.name
+            result['username'] = user_info.username
+            code = 200  # OK
+        else:
+            result['message'] = 'invalid key'
+            code = 401  # Unauthorized
+    except Exception as e:
+        result['messsage'] = e.__str__()
+        code = 500  # Internal Server Error
+
+    return jsonify(result), code
 
 
 @app.route('/api/uihome', methods=['POST'])
 def route_api_uihome():
+    result = {'totalflow': '', 'mrrflow': '', 'sites': '', 'message': ''}
+    code = 400
     if check_key(request):
         uihome = UIHome()
-        result = {'totalflow': uihome.total_flow, 'mrrflow': uihome.mrr_flow, 'sites': uihome.data}
-        return jsonify(result), 200
+        result['totalflow'] = uihome.total_flow
+        result['mrrflow'] = uihome.mrr_flow
+        result['sites'] = uihome.data
+        code = 200  # OK
     else:
-        return jsonify({}), 401
+        code = 401  # Unauthorized
+
+    return jsonify(result), code
 
 
 @app.route('/api/uisite/<site>', methods=['POST'])
