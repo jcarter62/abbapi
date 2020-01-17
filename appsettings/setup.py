@@ -35,6 +35,7 @@ class Setup:
         settings.sqldb = self.user_input(msg='SQL Server Database', def_val=settings.sqldb)
         settings.datafile = self.user_input(msg='Sites datafile', def_val=settings.datafile)
         settings.key = self.user_input(msg='key', def_val=settings.key)
+        settings.auth_api = self.user_input(msg='Auth API Url', def_val=settings.auth_api)
 
         if self.user_input(msg='Update config file ? ', def_val='yes') == 'yes':
             settings.save_config()

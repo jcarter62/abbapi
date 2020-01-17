@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+import requests, json
 from abb import Sites, SiteMRR, AllSitesMRR
 from applogging import AppLogging
 from uiapi import UIHome, UISite
@@ -13,6 +14,27 @@ log = AppLogging(appname='api', app=app)
 def home():
     log.log_message(msg='/', req=request)
     return jsonify({})
+
+
+@app.route('/login', methods=['POST'])
+def route_login():
+    result = {'result': 'failure', 'message': ''}
+    if check_key(request):
+        username = request.form['username']
+        password = request.form['password']
+        settings = Settings()
+        url = settings.auth_api + '/login'
+        formdata = {'username': username, 'password': password}
+        try:
+            data = requests.post(url, data=formdata)
+            if data.status_code == 200:
+                data = data.json()
+                token = data['token']
+                result['token'] = token
+                result['result'] = 'success'
+        except requests.exceptions.RequestException as e:
+            result['message'] = e.__str__()
+    return result
 
 
 @app.route('/api/uihome', methods=['POST'])

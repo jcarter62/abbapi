@@ -11,6 +11,7 @@ class Settings:
         self.sqldb = ''
         self.datafile = ''
         self.key = ''
+        self.auth_api = ''
         self.load_config()
 
     def __str__(self):
@@ -21,6 +22,7 @@ class Settings:
             'sqldb:' + self.sqldb + nl + \
             'datafile:' + self.datafile + nl + \
             'key:' + self.key + nl + \
+            'auth_api:' + self.auth_api + nl + \
             'config file:' + self.config_filename()
         return s
 
@@ -53,7 +55,8 @@ class Settings:
                 "mongo_port": defaults.mongo_port,
                 "sqlserver": defaults.sqlserver,
                 "sqldb": defaults.sqldb,
-                "datafile": defaults.datafile
+                "datafile": defaults.datafile,
+                "auth_api": defaults.auth_api,
             }
 
         try:
@@ -86,6 +89,11 @@ class Settings:
         except KeyError:
             self.key = defaults.key
 
+        try:
+            self.auth_api = db_obj['auth_api']
+        except KeyError:
+            self.auth_api = defaults.auth_api
+
         return
 
     def save_config(self):
@@ -96,7 +104,8 @@ class Settings:
             "sqlserver": self.sqlserver,
             "sqldb": self.sqldb,
             "datafile": self.datafile,
-            "key": self.key
+            "key": self.key,
+            "auth_api": self.auth_api
         }
 
         filename = self.config_filename()
