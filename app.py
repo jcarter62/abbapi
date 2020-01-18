@@ -4,8 +4,7 @@ from abb import Sites, SiteMRR, AllSitesMRR
 from applogging import AppLogging
 from uiapi import UIHome, UISite
 from appsettings import Settings
-from auth import Login, UserInfo
-
+from auth import Login, UserInfo, RemoveToken
 
 app = Flask(__name__)
 log = AppLogging(appname='api', app=app)
@@ -51,7 +50,7 @@ def route_login_details():
             result['email'] = user_info.email
             result['name'] = user_info.name
             result['username'] = user_info.username
-            code = 200  # OK
+            code = user_info.code
         else:
             result['message'] = 'invalid key'
             code = 401  # Unauthorized
@@ -60,6 +59,24 @@ def route_login_details():
         code = 500  # Internal Server Error
 
     return jsonify(result), code
+
+
+@app.route('/removetoken', methods=['POST'])
+def route_remove_token():
+    result = {'message': ''}
+    try:
+        if check_key(request):
+            token = request.form['token']
+            rm = RemoveToken(token=token)
+            code = rm.code
+        else:
+            result['message'] = 'invalid key'
+            code = 401  # Unauthorized
+    except Exception as e:
+        result['messsage'] = e.__str__()
+        code = 500  # Internal Server Error
+    return jsonify(result), code
+
 
 
 @app.route('/api/uihome', methods=['POST'])

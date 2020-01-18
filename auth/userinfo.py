@@ -8,6 +8,7 @@ class UserInfo:
     name: str
     token: str
     username: str
+    code: int
 
     def __init__(self, token=''):
         self.email = ''
@@ -15,6 +16,7 @@ class UserInfo:
         self.name = ''
         self.token = token
         self.username = ''
+        self.code = 0
 
         self.details()
         return
@@ -33,6 +35,12 @@ class UserInfo:
                 self.message = ''
                 self.name = data['name']
                 self.username = data['username']
+                self.code = 200
+            else:
+                self.token = ''
+                self.message = 'Return Code %s' % str(data.status_code)
+                self.code = data.status_code
         except requests.exceptions.RequestException as e:
             self.message = e.__str__()
+            self.code = 400
         return
