@@ -119,6 +119,8 @@ class UIHome:
         for m in mrr:
             self.mrr_flow += m['tflow']
 
+        self.mrr_flow = round(self.mrr_flow, 2)
+
         return result
 
     def calc_age(self, record) -> str:
