@@ -125,37 +125,50 @@ def route_api_sites():
 @app.route('/api/site/abburl/<site>', methods=['POST'])
 def route_api_site_abburl(site):
     log.log_message(req=request)
-    sites = Sites()
-    # find this site
-    site = site.lower()
-    result = None
-    for s in sites.sites['sites']:
-        name = s['name'].lower()
-        abbname = s['abb']['urlname'].lower()
-        if site == name or site == abbname:
-            result = s['abb']
-            break
-    if result is None:
-        return jsonify({}), 204
-    return jsonify(result), 200
+    if check_key(request):
+        sites = Sites()
+        # find this site
+        site = site.lower()
+        result = None
+        for s in sites.sites['sites']:
+            name = s['name'].lower()
+            abbname = s['abb']['urlname'].lower()
+            if site == name or site == abbname:
+                result = s['abb']
+                code = 200
+                break
+        if result is None:
+            result = {}
+            code = 204
+    else:
+        result = {'message': 'invalid key'}
+        code = 401  # Unauthorized
+    return jsonify(result), code
+
 
 
 @app.route('/api/site/hmiurl/<site>', methods=['POST'])
 def route_api_site_hmiurl(site):
     log.log_message(req=request)
-    sites = Sites()
-    # find this site
-    site = site.lower()
-    result = None
-    for s in sites.sites['sites']:
-        name = s['name'].lower()
-        hminame = s['hmi']['urlname'].lower()
-        if site == name or site == hminame:
-            result = s['hmi']
-            break
-    if result is None:
-        return jsonify({}), 204
-    return jsonify(result), 200
+    if check_key(request):
+        sites = Sites()
+        # find this site
+        site = site.lower()
+        result = None
+        for s in sites.sites['sites']:
+            name = s['name'].lower()
+            hminame = s['hmi']['urlname'].lower()
+            if site == name or site == hminame:
+                result = s['hmi']
+                code = 200
+                break
+        if result is None:
+            result = {}
+            code = 204
+    else:
+        result = {'message': 'invalid key'}
+        code = 401  # Unauthorized
+    return jsonify(result), code
 
 
 def check_key(req : request):
