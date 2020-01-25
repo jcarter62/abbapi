@@ -47,6 +47,7 @@ class UIHome:
                     url_abb = s['abb']['url']
                 if s['hmi']['urlname'] > '':
                     url_hmi = s['hmi']['url']
+                tags = None
             else:
                 flow = m['tflow']
                 state = m['state']
@@ -60,6 +61,15 @@ class UIHome:
                     url_abb = s['abb']['url']
                     disp_name = s['abb']['urlname']
                 site_age = self.calc_age(m)
+                #
+                # Determine tags A,B,..D
+                #
+                tags = {'a':0, 'b':0, 'c':0, 'd':0}
+                for f in m['flow']:
+                    tag = f['tag'].lower()
+                    if tag != 'total':
+                        tags[tag] = 1
+
 
             # find any orders for this lateral/site.
             site_orders = 0.0
@@ -85,7 +95,8 @@ class UIHome:
                 'disp_abb': (s['abb']['urlname'] > ''),
                 'disp_hmi': (s['hmi']['urlname'] > ''),
                 'age': site_age,
-                'orders_vs_flow': ''
+                'orders_vs_flow': '',
+                'tags': tags
             }
 
             if not record['disp_abb']:
