@@ -47,7 +47,7 @@ class UIHome:
                     url_abb = s['abb']['url']
                 if s['hmi']['urlname'] > '':
                     url_hmi = s['hmi']['url']
-                tags = None
+                tags = []
             else:
                 flow = m['tflow']
                 state = m['state']
@@ -64,12 +64,17 @@ class UIHome:
                 #
                 # Determine tags A,B,..D
                 #
-                tags = {'a':0, 'b':0, 'c':0, 'd':0}
+                tags = []
+                #'a': None, 'b': None, 'c': None, 'd': None}
                 for f in m['flow']:
                     tag = f['tag'].lower()
-                    if tag != 'total':
-                        tags[tag] = 1
-
+                    if tag in ['a', 'b', 'c', 'd']:
+                        value = f['value']
+                        if value > 0:
+                            state = 'run'
+                        else:
+                            state = 'stop'
+                        tags.append({'tag': tag, 'state': state, 'value': value})
 
             # find any orders for this lateral/site.
             site_orders = 0.0
