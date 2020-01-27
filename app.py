@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request, session
 import requests, json
-from abb import Sites, SiteMRR, AllSitesMRR
+from abb import Sites, SiteMRR, AllSitesMRR, Plot
 from applogging import AppLogging
 from uiapi import UIHome, UISite
 from appsettings import Settings
@@ -103,6 +103,17 @@ def route_api_uisite(site):
         return jsonify(data), 200
     else:
         return jsonify({}), 401
+
+
+@app.route('/api/uisite-plot/<site>', methods=['POST'])
+def route_api_uisite_hist(site):
+    if check_key(request):
+        plot = Plot(site=site)
+        data = plot.data
+        return jsonify(data), 200
+    else:
+        return jsonify({}), 401
+
 
 
 @app.route('/api/sites/names')
