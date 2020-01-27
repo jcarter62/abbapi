@@ -5,18 +5,14 @@ import math
 
 class Plot:
 
-    def __init__(self, site: str = '') -> None:
+    def __init__(self, site: str = '', days: float = 0.5) -> None:
         self.client = DbClient().client
         self.db = self.client['abb']
         self.dbdata = self.db['data']
-        self.site = ''
+        self.site = site
         self.data = []
-        self.days = 2
-
-        if site > '':
-            self.site = site
-            self.set_name(site=site)
-
+        self.days = days
+        self.set_name(site=site)
         return
 
 
@@ -58,7 +54,6 @@ class Plot:
 
     def set_name(self, site: str = ''):
         self.site = site.lower()
-        detail = []
 
         set1 = self.dbdata.find({'site': site, 't0': {'$gt': self.yesterday()}})
         qtrhrs = set1.distinct('qtrhr')
@@ -90,7 +85,7 @@ class Plot:
         dev_y = []
         labels = []
         for r in result:
-            time = r['dt'].strftime('%y-%m-%d %H:%M')
+            time = r['dt'].strftime('%m/%d %H:%M')
             dev_x.append(time)
             labels.append(time)
             dev_y.append(r['avg'])

@@ -105,12 +105,19 @@ def route_api_uisite(site):
         return jsonify({}), 401
 
 
-@app.route('/api/uisite-plot/<site>', methods=['POST'])
-def route_api_uisite_hist(site):
+@app.route('/api/uisite-plot', methods=['POST'])
+def route_api_uisite_hist():
     if check_key(request):
-        plot = Plot(site=site)
-        data = plot.data
-        return jsonify(data), 200
+        try:
+            site = get_form_value(request, 'site')
+            days = round(float(get_form_value(request, 'days')), 2)
+            plot = Plot(site=site, days=days)
+            data = plot.data
+            data['site'] = site
+            data['days'] = days
+            return jsonify(data), 200
+        except Exception as e:
+            return jsonify({'Message': e.__str__()}), 500
     else:
         return jsonify({}), 401
 
@@ -194,6 +201,18 @@ def check_key(req : request):
         result = False
 
     return result
+
+#
+# Obtain form data value for named key.
+#
+def get_form_value(req: request, name:str = ''):
+    r = req
+    try:
+        result = r.form[name]
+    except KeyError:
+        result = ''
+    return result
+
 
 @app.route('/api/site/findby/address/<address>')
 def route_site_findbyip(address):
