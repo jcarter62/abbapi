@@ -111,7 +111,7 @@ def route_api_uisite_hist():
         try:
             site = get_form_value(request, 'site')
             days = round(float(get_form_value(request, 'days')), 2)
-            plot = Plot(site=site, days=days)
+            plot = Plot(site=site)
             data = plot.data
             data['site'] = site
             data['days'] = days
